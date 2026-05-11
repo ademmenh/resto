@@ -13,7 +13,7 @@ from src.sales.domain.errors import SaleAccessDeniedError, SaleCannotBeCancelled
 from src.sales.infrastructure.in_memory_repository import InMemorySaleRepository
 from src.shared.infrastructure.id_generator import IDGenerator
 from src.users.domain.entity import UserEntity
-from src.users.infrastructure.in_memory_repository import InMemoryUserRepository
+from src.users.infrastructure.repository import InMemoryUserRepository
 from src.shared.domain.id import Id
 from src.shared.domain.email import Email
 

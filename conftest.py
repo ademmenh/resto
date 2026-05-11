@@ -62,6 +62,10 @@ class TestConfig(IConfig):
     def jwt_secret(self) -> str: return "test-secret"
     @property
     def debug(self) -> bool: return True
+    @property
+    def cors_origins(self) -> list[str]: return ["*"]
+    @property
+    def cors_credentials(self) -> bool: return True
 
 
 @pytest.fixture(scope="session")

@@ -11,7 +11,7 @@ from src.users.application.update_user import UpdateUser, UpdateUserInput
 from src.users.application.delete_user import DeleteUser, DeleteUserInput
 from src.users.domain.entity import UserEntity
 from src.users.domain.errors import UserEmailAlreadyExistsError, UserNotFoundError
-from src.users.infrastructure.in_memory_repository import InMemoryUserRepository
+from src.users.infrastructure.repository import InMemoryUserRepository
 
 
 def _make_user(user_id: str, name: str = "Alice", email: str = "alice@example.com", role: str = "client") -> UserEntity:
