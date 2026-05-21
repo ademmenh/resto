@@ -2,7 +2,6 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.pool import StaticPool
 
 from src.app import create_app
 from src.config.domain.interface import IConfig
@@ -27,15 +26,15 @@ class TestConfig(IConfig):
     @property
     def nginx_port(self) -> int: return 443
     @property
-    def db_host(self) -> str: return ""
+    def db_host(self) -> str: return "localhost"
     @property
-    def db_port(self) -> int: return 0
+    def db_port(self) -> int: return 5432
     @property
-    def db_user(self) -> str: return ""
+    def db_user(self) -> str: return "postgres"
     @property
-    def db_password(self) -> str: return ""
+    def db_password(self) -> str: return "postgres"
     @property
-    def db_name(self) -> str: return ""
+    def db_name(self) -> str: return "test_waslini"
     @property
     def logs_dirname(self) -> str: return "logs"
     @property
@@ -55,9 +54,9 @@ class TestConfig(IConfig):
     @property
     def cookies_same_site(self) -> str: return "lax"
     @property
-    def database_url(self) -> str: return "sqlite:///:memory:"
+    def database_url(self) -> str: return f"postgresql+asyncpg://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
     @property
-    def async_database_url(self) -> str: return "sqlite+aiosqlite:///:memory:"
+    def async_database_url(self) -> str: return f"postgresql+asyncpg://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
     @property
     def jwt_secret(self) -> str: return "test-secret"
     @property
@@ -75,16 +74,12 @@ def config() -> IConfig:
 
 @pytest_asyncio.fixture(scope="session")
 async def engine(config):
-    # Using StaticPool with in-memory SQLite ensures all connections share the same DB
-    engine = create_async_engine(
-        config.async_database_url,
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
-    
+    engine = create_async_engine(config.async_database_url)
+
     async with engine.begin() as conn:
+        await conn.run_sync(metadata.drop_all)
         await conn.run_sync(metadata.create_all)
-    
+
     yield engine
     await engine.dispose()
 
@@ -95,7 +90,7 @@ async def client(config, engine):
     from unittest.mock import patch
 
     async def _noop_create_tables(self):
-        pass  # tables already created by the engine fixture
+        pass
 
     with patch.object(DatabaseAdapter, "__init__", lambda s, c: None), \
          patch.object(DatabaseAdapter, "engine", engine), \

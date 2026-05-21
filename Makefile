@@ -5,8 +5,7 @@ HOST     = 0.0.0.0
 PORT     = 8000
 WORKERS  = 4
 
-# Find uv command - use which to locate it, fall back to known path
-UV_CMD = $(shell which uv 2>/dev/null || echo /home/gon/.local/bin/uv)
+UV_CMD = uv
 UV_RUN = $(UV_CMD) run
 
 PYTEST  = $(UV_RUN) pytest
